@@ -3,7 +3,16 @@
     <!-- <img src="./assets/logo.png">
     <router-view/> -->
     <Header/>
-    <Login/>
+    <Login v-if="isLogin === false"></Login>
+    <div v-else class="clearfix" id="main">
+      <div class="pull-left" id="sidebar">
+        
+      </div>
+
+      <div id="main-content">
+        
+      </div>
+    </div>
   </div>
 </template>
 
@@ -17,6 +26,11 @@ export default {
   components: {
     Header,
     Login,
+  },
+  data () {
+    return {
+      isLogin: false
+    }
   }
 }
 </script>
