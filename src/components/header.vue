@@ -1,11 +1,10 @@
 <template>
 	<header id="header" class="">
-		<div class="left">
-			<span class="logo">Admin Console</span>
-			<span>=</span>
-		</div>
-		<div class="right user">
-			管理员
+		<a href="#" class="logo"><img src="../assets/imgs/logo.png" alt="logo"></a>
+		<h1 class="title">兴隆爆破器材仓库新闻发布后台</h1>
+		<div class="login-state">
+			<span class="user">你好，<span class="user-name">管理员名称</span></span>
+			<span class="login">请登录</span>
 		</div>
 	</header><!-- /header -->
 </template>
@@ -17,15 +16,53 @@
 </script>
 
 <style scoped="" lang="less">
+	@import "../assets/styles/global.less";
+
 	#header {
-		height: 60px;
-		background-color: #010101;
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: 999;
+		width: 100%;
+		height: 80px;
 		color: #fff;
-		.left {
+		background-color: @theme-color;
+		.logo {
+			position: relative;
 			float: left;
+			width: 200px;
+			height: 100%;
+			overflow: hidden;
+			line-height: 80px;
+			img {
+			  .absolute-center;
+			  width: 156px;
+			  height: 58px;
+			}
+	    }
+		.title {
+			float: left;
+			width: 280px;
+			height: 28px;
+			padding: 13px 0;
+			font-weight: normal;
+			font-size: 20px;
 		}
-		.right {
+		.login-state {
 			float: right;
+			width: 200px;
+			padding:30px 20px;
+			.user-name {
+				text-decoration: underline;	
+			}
+			.login,
+			.logout {
+				padding-left: 10px;
+			}
+			.logout:hover {
+				cursor: pointer;
+			  	text-decoration: underline;
+			}
 		}
 	}
 </style>

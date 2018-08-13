@@ -1,0 +1,101 @@
+html, body {
+  width: 100%;
+  min-width: 1000px;
+  height: 100%;
+  font-family: "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+  line-height: 1.4em;
+  font-size: 14px;
+  color: #333;
+  a {
+    color: #333;
+  }
+  a:visited,
+  a:focus,
+  a:hover,
+  a:active {
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: #008842;
+  }
+}
+
+@theme-color: #055432;
+@light-color: #008842;
+@muted-color: #939393;
+
+.margin-right {
+  margin-right: 25px;
+}
+
+.margin-bottom {
+  margin-bottom: 20px;
+}
+
+.padding-left-right(@width: 9px) {
+  padding-left: @width;
+  padding-right: @width;
+}
+
+.text-overflow(@width) {
+  width: @width;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.clearfix:after {
+  content:"";
+  display: block;
+  clear:both;
+}
+
+.absolute-center {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0px;
+  right: 0px;
+  margin: auto;
+}
+
+.vertical-middle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+}
+
+.opacity(@opacity: 60) {
+  opacity: @opacity / 100;
+  filter: alpha(opacity=@opacity);
+}
+
+.border(@color: #E6E6E6) {
+  border: 1px solid @color;
+}
+
+.border-bottom {
+  border-bottom: 1px solid @theme-color;
+}
+
+.btn-green {
+  background-color: @theme-color;
+  color: #fff;
+  &:hover {
+    background-color: @light-color;
+    color: #fff;
+  }
+}
+
+.btn-green-outer {
+  background-color: #FFF;
+  .border(@theme-color);
+  &:hover {
+    background-color: @theme-color;
+    color: #fff;
+  }
+}
+
+@leftWidth: 200px;
