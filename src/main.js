@@ -6,7 +6,7 @@ import App from './App'
 
 import './assets/styles/reset.css'
 import './assets/styles/bootstrap.min.css'
-
+import './assets/styles/global.css'
 
 Vue.config.productionTip = false
 
