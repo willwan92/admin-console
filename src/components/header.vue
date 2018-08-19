@@ -4,7 +4,8 @@
 		<h1 class="title">新闻发布后台</h1>
 		<div class="login-state">
 			<span class="user">你好，<span class="user-name">管理员</span></span>
-			<span class="login">请登录</span>
+			<span v-if="isLogin ==='true'" class="logout" @click="logout">退出</span>
+			<span v-else class="login">请登录</span>
 		</div>
 	</header><!-- /header -->
 </template>
@@ -12,9 +13,16 @@
 <script>
 	export default {
 		name: "Header",
-		data() {
-			return {
-
+		props: {
+			isLogin: {
+				type: String,
+				required: false
+			}
+		},
+		methods: {
+			logout() {
+				sessionStorage.removeItem('isLogin');
+				this.$emit('toggleLoginState');
 			}
 		}
 	}
