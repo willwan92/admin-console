@@ -43,8 +43,24 @@ export default {
     return {
       baseUrl: baseUrl,
       isLogin: this.getLoginState(),
-      menuData: [{"fid":"10","typeName":"新闻管理","currentLevel":1,"orderNum":1,"isMenu":1,"isType":0,"list":[{"fid":"1010","typeName":"新闻资讯","currentLevel":2,"orderNum":1,"isMenu":1,"isType":0,"list":[]},{"fid":"1050","typeName":"本地资讯","currentLevel":2,"orderNum":2,"isMenu":1,"isType":0,"list":[]}]},{"fid":"20","typeName":"通知政策管理","currentLevel":1,"orderNum":2,"isMenu":1,"isType":0,"list":[{"fid":"201","typeName":"通知公告","currentLevel":2,"orderNum":1,"isMenu":1,"isType":1,"list":[]},{"fid":"202","typeName":"政策法规","currentLevel":2,"orderNum":2,"isMenu":1,"isType":1,"list":[]}]},{"fid":"30","typeName":"先进典型","currentLevel":1,"orderNum":3,"isMenu":1,"isType":1,"list":[]}],
+      menuData: [],
     }
+  },
+  created () {
+    let self = this;
+    axios.get(baseUrl + 'admin/getMenu')
+      .then(function (res) {
+        if (res.data.status === 1) {
+          console.log(self.menuData)
+          self.menuData = res.data.body;
+        }
+        else {
+          alert(res.data.message);
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
   },
   methods: {
     toggleLoginState() {
@@ -53,20 +69,6 @@ export default {
     getLoginState() {
       return sessionStorage.getItem('isLogin');
     },
-    getMenuData() {
-      axios.get(baseUrl + 'admin/getMenu')
-        .then(function (res) {
-          if (res.data.status === 1) {
-            return res.data.body;
-          }
-          else {
-            alert(res.data.message);
-          }
-        })
-        .catch(function (error) {
-          console.log(error);
-        })
-    }
   }
 }
 </script>
