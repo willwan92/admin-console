@@ -8,10 +8,28 @@
 		            <li class="nav-link 1050" data-id="1050" data-type="0">本地资讯</li>
 		        </ul>
 		    </li> -->
-		    <li  v-for="(item, index) in menuData" :class="[index === 0 ? 'open' : '', 'menu-item']" :key="item.id">
-		        <h2 class="menu-title" :data-id="item.fid" :data-type="item.isType">{{ item.typeName }}</h2>
-		        <ul class="nav" style="display: block;">
-		            <li v-for="(subItem, subIndex) in item.list" :class="[index === 0 && subIndex === 0 ? 'active' : '', 'nav-link']" :data-id="item.fid" :data-type="item.isType">{{ subItem.typeName }}</li>
+		    <li 
+		    	 v-for="(item, index) in menuData" 
+		    	:class="['menu-item', index === openIndex ? 'open' : '']" 
+		    	:key="item.id"
+	    	>
+		        <h2 
+		        	class="menu-title" 
+		        	:data-id="item.fid" 
+		        	:data-type="item.isType"
+		        	:data-index="index"
+		        	@click="toggle"
+	        	>{{ item.typeName }}</h2>
+
+		        <ul class="nav">
+		            <li 
+		            	v-for="(subItem, subIndex) in item.list" 
+		            	:class="[index === openIndex && subIndex === activeIndex ? 'active' : '', 'nav-link']" 
+		            	:data-id="item.fid" 
+		            	:data-type="item.isType"
+		            	:data-sub-index="subIndex"
+		            	@click="toggleActive"
+	            	>{{ subItem.typeName }}</li>
 		        </ul>
 		    </li>
 		</ul>
@@ -21,6 +39,12 @@
 <script>
 	export default {
 		name: "Sidebar",
+		data () {
+			return {
+				openIndex: 0,
+				activeIndex: 0,
+			}
+		},
 		props: {
 			menuData: {
 				type: Array,
@@ -28,6 +52,21 @@
 			}
 		},
 		methods: {
+			toggle (event) {
+				var dataIndex = this.attr(event.target, 'data-index')
+				this.openIndex = parseInt(dataIndex)
+
+				// 重置上次选中的子菜单项索引，默认不选中子菜单项
+				this.activeIndex = -1
+			},
+			toggleActive (event) {
+				console.log(event.target)
+				var subIndex = this.attr(event.target, 'data-sub-index')
+				this.activeIndex = parseInt(subIndex)
+			},
+			attr (target, attr) {
+				return target.getAttribute(attr);
+			}
 		}
 	}
 </script>
@@ -60,6 +99,7 @@
 	        background-color: #F2F2F2;
 	      }
 	      .nav {
+	      	display: none;
 	        .nav-link {
 	          height: 40px;
 	          line-height: 40px;
@@ -74,10 +114,13 @@
 	      }
 	    }
 	    .open {
-	      .menu-title {
-	        background-color: #CDDDD6 !important;
-	      }
-	    }
+	    	.nav {
+	    		display: block;
+	    	}
+		    .menu-title {
+		      background-color: #CDDDD6 !important;
+		    }	    
+		}
 	  }
 	}
 </style>

@@ -41,7 +41,7 @@
 </template>
 
 <script>
-	
+
 	import axios from '../../bower_components/axios/dist/axios.min.js';
 
 	export default {
@@ -49,17 +49,14 @@
 		data() {
 			return {
 				userName: "",
-				password: "",
-			}
-		},
-		props: {
-			baseUrl: {
-				type: String,
-				required: true,
+				password: ""
 			}
 		},
 		methods: {
 			loginSubmit(event) {
+	            var loginUrl = 'http://192.168.0.155:9090/admin/login';
+	            // var loginUrl = 'http://10.60.5.74:9090/admin/login';
+
 	           	var self = this;
 	            axios({
 	                method: 'post',
@@ -67,23 +64,22 @@
 	                	userName: self.userName,
 	                	password: self.password 
 	                },
-	                url: this.baseUrl + 'admin/login'
+	                url: loginUrl
 	            })
 	            .then(function (res) { //res包含了data和headers等等信息
 	            	let data = res.data;
                     if (data.status === 1) {
                         sessionStorage.setItem('isLogin', true);
-                        self.login();
+                        self.toggleLoginState();
                     }
                     else {
                         alert('错误：' + data.message);
                     }
                 })
 	        },
-	        login() {
+	        toggleLoginState() {
 	        	this.$emit('toggleLoginState');
-	        },
-	        
+	        }
 		}
 	}
 </script>

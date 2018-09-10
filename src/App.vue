@@ -1,7 +1,5 @@
 <template>
   <div id="app">
-    <!-- <img src="./assets/logo.png">
-    <router-view/> -->
     <Header 
       :isLogin="isLogin"
       :baseUrl="baseUrl"
@@ -29,8 +27,8 @@ import Sidebar from './components/sidebar.vue'
 
 import axios from '../bower_components/axios/dist/axios.min.js'
 
-// const baseUrl = 'http://192.168.0.155:9090/';
-  const baseUrl = 'http://10.60.5.74:9090/';
+const baseUrl = 'http://192.168.0.155:9090/';
+  // const baseUrl = 'http://10.60.5.74:9090/';
 
 export default {
   name: 'App',
@@ -51,8 +49,8 @@ export default {
     axios.get(baseUrl + 'admin/getMenu')
       .then(function (res) {
         if (res.data.status === 1) {
-          console.log(self.menuData)
           self.menuData = res.data.body;
+          console.log(self.menuData)
         }
         else {
           alert(res.data.message);
