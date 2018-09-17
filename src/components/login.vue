@@ -54,8 +54,6 @@
 		},
 		methods: {
 			loginSubmit(event) {
-	            var loginUrl = 'http://192.168.0.155:9090/admin/login';
-	            // var loginUrl = 'http://10.60.5.74:9090/admin/login';
 
 	           	var self = this;
 	            axios({
@@ -64,7 +62,7 @@
 	                	userName: self.userName,
 	                	password: self.password 
 	                },
-	                url: loginUrl
+	                url: this.$store.state.baseUrl + '/admin/login',
 	            })
 	            .then(function (res) { //res包含了data和headers等等信息
 	            	let data = res.data;

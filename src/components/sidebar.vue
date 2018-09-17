@@ -12,7 +12,8 @@
 		    	 v-for="(item, index) in menuData" 
 		    	:class="['menu-item', index === openIndex ? 'open' : '']" 
 		    	:key="item.id"
-	    	>
+	    	>	
+
 		        <h2 
 		        	class="menu-title" 
 		        	:data-id="item.fid" 
@@ -21,16 +22,27 @@
 		        	@click="toggle"
 	        	>{{ item.typeName }}</h2>
 
-		        <ul class="nav">
-		            <li 
-		            	v-for="(subItem, subIndex) in item.list" 
-		            	:class="[index === openIndex && subIndex === activeIndex ? 'active' : '', 'nav-link']" 
-		            	:data-id="item.fid" 
+		        <div v-if="item.list.length" class="nav">
+		            <router-link 
+		            	v-for="(subItem, subIndex) in item.list"
+		            	:to="'/admin/' + subItem.fid"
+		            	:class="[index === openIndex && subIndex === activeIndex ? 'active' : '', 'nav-link']"
 		            	:data-type="item.isType"
 		            	:data-sub-index="subIndex"
-		            	@click="toggleActive"
-	            	>{{ subItem.typeName }}</li>
-		        </ul>
+		            	@click.native="toggleActive"
+	            	>
+						{{ subItem.typeName }}
+	            	</router-link>
+		        </div>
+		        <div v-else class="nav">
+	            	<router-link
+	            		:to="'/admin/' + item.fid"
+						:class="[index === openIndex && 0 === activeIndex ? 'active' : '', 'nav-link']"
+		            	:data-type="item.isType"
+		            	:data-sub-index="0"
+		            	@click.native="toggleActive"
+	            		>{{ item.typeName }}</router-link>
+		        </div>
 		    </li>
 		</ul>
 	</div>
@@ -60,7 +72,6 @@
 				this.activeIndex = -1
 			},
 			toggleActive (event) {
-				console.log(event.target)
 				var subIndex = this.attr(event.target, 'data-sub-index')
 				this.activeIndex = parseInt(subIndex)
 			},
@@ -101,6 +112,7 @@
 	      .nav {
 	      	display: none;
 	        .nav-link {
+	          display: block;
 	          height: 40px;
 	          line-height: 40px;
 	          margin-bottom: 1px;
