@@ -1,16 +1,9 @@
 <template>
-	<div class="location">当前位置：
-		<span class="location-item"> {{ getLocation }}</span>
-	</div>
+	<span class="location-item"> {{ getLocation }}</span>
 </template>
 
 <style lang="less" scoped="">
-	@import '../assets/styles/global.less';
-
-	.location {
-	    margin-bottom: 20px;
-	    color: @muted-color;
-	  }
+	
 </style>
 
 <script>
