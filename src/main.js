@@ -19,10 +19,18 @@ Vue.use(Vuex)
 
 var store = new Vuex.Store({
 	state: {
-		baseUrl: 'http://192.168.0.155:9090',
+		baseUrl: 'http://10.60.5.74:9090',
+		// baseUrl: 'http://192.168.0.155:9090',
+		openIndex: 0,
+		menuId: '1010'
 	},
 	mutations: {
-		
+		changeMenuId (state, playload) {
+			state.menuId = playload.menuId;
+		},
+		changeOpenIndex (state, playload) {
+			state.openIndex = playload.openIndex;
+		}
 	}
 })
 

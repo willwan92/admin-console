@@ -10,7 +10,7 @@
 		    </li> -->
 		    <li 
 		    	 v-for="(item, index) in menuData" 
-		    	:class="['menu-item', index === openIndex ? 'open' : '']" 
+		    	:class="['menu-item', index === getOpenIndex ? 'open' : '']" 
 		    	:key="item.id"
 	    	>	
 
@@ -24,12 +24,10 @@
 
 		        <div v-if="item.list.length" class="nav">
 		            <router-link 
-		            	v-for="(subItem, subIndex) in item.list"
+		            	v-for="subItem in item.list"
 		            	:to="'/admin/' + subItem.fid"
-		            	:class="[index === openIndex && subIndex === activeIndex ? 'active' : '', 'nav-link']"
+		            	class="nav-link"
 		            	:data-type="item.isType"
-		            	:data-sub-index="subIndex"
-		            	@click.native="toggleActive"
 	            	>
 						{{ subItem.typeName }}
 	            	</router-link>
@@ -37,11 +35,9 @@
 		        <div v-else class="nav">
 	            	<router-link
 	            		:to="'/admin/' + item.fid"
-						:class="[index === openIndex && 0 === activeIndex ? 'active' : '', 'nav-link']"
+						class="nav-link"
 		            	:data-type="item.isType"
-		            	:data-sub-index="0"
-		            	@click.native="toggleActive"
-	            		>{{ item.typeName }}</router-link>
+            		>{{ item.typeName }}</router-link>
 		        </div>
 		    </li>
 		</ul>
@@ -53,8 +49,7 @@
 		name: "Sidebar",
 		data () {
 			return {
-				openIndex: 0,
-				activeIndex: 0,
+				
 			}
 		},
 		props: {
@@ -63,17 +58,22 @@
 				required: true
 			}
 		},
+		computed: {
+			getOpenIndex() {
+				return this.$store.state.openIndex;
+			}
+		},
 		methods: {
 			toggle (event) {
 				var dataIndex = this.attr(event.target, 'data-index')
-				this.openIndex = parseInt(dataIndex)
+
+				this.$store.commit({
+					type: "changeOpenIndex",
+					openIndex: parseInt(dataIndex)
+				})
 
 				// 重置上次选中的子菜单项索引，默认不选中子菜单项
-				this.activeIndex = -1
-			},
-			toggleActive (event) {
-				var subIndex = this.attr(event.target, 'data-sub-index')
-				this.activeIndex = parseInt(subIndex)
+				// this.activeIndex = -1
 			},
 			attr (target, attr) {
 				return target.getAttribute(attr);
@@ -120,7 +120,7 @@
 	          cursor: pointer;
 	          background-color: #F2F2F2;
 	        }
-	        .active {
+	        .router-link-active {
 	          background-color: #CDDDD6;
 	        }
 	      }

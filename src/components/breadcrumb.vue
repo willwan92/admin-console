@@ -15,7 +15,6 @@
 
 <script>
 	export default {
-		props: ['menuId'],
 		computed: {
 			getLocation () {
 				const locations = {
@@ -26,7 +25,7 @@
 					"30"   : "先进典型"
 				};
 
-				return locations[this.menuId];
+				return locations[this.$store.state.menuId];
 			}
 		}
 	}
