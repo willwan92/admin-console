@@ -1,10 +1,12 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
-import App from './App'
-import ContentList from './components/content-list.vue'
 import VueRouter from 'vue-router'
 import Vuex from 'vuex'
+import { Radio, RadioGroup, RadioButton } from 'element-ui'
+import App from './App'
+import ContentList from './components/content-list.vue'
+import ContentEditor from './components/content-editor.vue'
 
 import './assets/styles/reset.css'
 import './assets/styles/bootstrap.min.css'
@@ -16,6 +18,9 @@ Vue.config.productionTip = false
 
 Vue.use(VueRouter)
 Vue.use(Vuex)
+Vue.use(Radio)
+Vue.use(RadioGroup)
+Vue.use(RadioButton)
 
 var menuData = {
 					"1010" : "新闻资讯",
@@ -59,6 +64,10 @@ const router = new VueRouter({
 		{
 			path: '/admin/:menuId',
 			component: ContentList,
+		},
+		{
+			path: '/admin/:menuId/edit',
+			component: ContentEditor,
 		}
 	]
 })
@@ -70,6 +79,7 @@ new Vue({
   	components: { 
   		App,
   		ContentList,
+  		ContentEditor
 	},
   	template: '<App/>'
 })

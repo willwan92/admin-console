@@ -5,8 +5,11 @@
 			<Button @click.native="newListItem">新建</Button>
 		</div>
 
-		<Tabs id="news-list" v-if="tabList" :tabList="tabList"></Tabs>
-		<CustomTable v-else  :thead="thead" :newsListObj="newsListObj"></CustomTable>
+		<Tabs v-if="tabList" 
+			:tabList="tabList"
+			@changeTab="changeTab">
+		</Tabs>
+		<CustomTable :thead="thead" :newsListObj="newsListObj"></CustomTable>
 	</div>
 </template>
 
@@ -28,7 +31,7 @@
 		},
 		data () {
 			return {
-				tabList: [],
+				tabList: null,
 				thead: {
 					newsTitle: '标题', 
 					date: '发布/编辑时间',
@@ -43,9 +46,13 @@
 			}
 		},
 		created () {
-			this.getTypeByPid()
+			this.getTypeByPid();
+			this.getNewsListObj();
 		},
 		methods: {
+			changeTab(index) {
+				this.getNewsListObj(index);
+			},
 			getTypeByPid () {
 				let self = this;
 				let _state = self.$store.state;
@@ -56,16 +63,20 @@
 					self.tabList = res.data.body.typeDTOList;
 				})
 			},
-			getNewsListObj() {
+			getNewsListObj(index) {
 				let self = this,
 					_state = this.$store.state,
 					baseUrl = _state.baseUrl,
-					menuId = _state.menuId;
+					params = {
+						menuId: _state.menuId,
+					};
+
+				if (index) {
+					params.fid = this.tabList[index].fid;
+				}
 
 				axios.get(baseUrl + '/admin/getNewsList', {
-					params: {
-						menuId: menuId,
-					}
+					params: params
 				})
 				.then(function(res) {
 					let data = res.data;
@@ -89,40 +100,49 @@
 				this.$router.push({path: '/admin/' + menuId + '/edit', component: ContentEditor});
 			}
 		},
-		watch: {
-			'$route' (to, from) {
-				let menuId = to.params.menuId;
-				let isFromEdit = from;
-				console.log(to);
-				// 打开的一级菜单索引
-				let openIndex = parseInt(menuId.charAt(0)) - 1;
-				let $store = this.$store;
+		// beforeRouteEnter(to, from, next) {
+		// 	console.log(to)
+		// },
+		// beforeRouteLeave(to, from, next) {
+		// 	console.log(to)
+		// },
+		// beforeRouteUpdate(to, from, next) {
+		// 	console.log(to)
+		// 	// let menuId = to.params.menuId;
+		// 	// let isFromEdit = from;
+		// 	// // 打开的一级菜单索引
+		// 	// let openIndex = parseInt(menuId.charAt(0)) - 1;
+		// 	// let $store = this.$store;
 
-				// to：到达的路由
-				// from：来自的路由
-				$store.commit({
-					type: 'changeMenuId',
-					menuId: menuId,
-				})
+		// 	// // to：到达的路由
+		// 	// // from：来自的路由
+		// 	// $store.commit({
+		// 	// 	type: 'changeMenuId',
+		// 	// 	menuId: menuId,
+		// 	// })
 
-				$store.commit({
-					type: 'changeOpenIndex',
-					openIndex: openIndex,
-				})
+		// 	// $store.commit({
+		// 	// 	type: 'changeOpenIndex',
+		// 	// 	openIndex: openIndex,
+		// 	// })
 
-				$store.commit({
-				  type: 'changeBreadcrumb',
-				  breadcrumb: menuId,
-				})
+		// 	// $store.commit({
+		// 	//   type: 'changeBreadcrumb',
+		// 	//   breadcrumb: menuId,
+		// 	// })
 
-				if (openIndex === 0) {
-					this.getTypeByPid()
-				} else {
-					this.tabList = null;
-					this.getNewsListObj();
-				}
-			}
-		}
+		// 	// if (openIndex === 0) {
+		// 	// 	this.getTypeByPid();
+		// 	// } else {
+		// 	// 	this.tabList = null;
+		// 	// }
+		// 	// this.getNewsListObj();
+		// },
+		// watch: {
+		// 	'$route' (to, from) {
+		// 		// console.log(to)
+		// 	}
+		// }
 	}
 </script>
 
@@ -132,7 +152,6 @@
 	}
 
 	#news-list {
-	  height: 700px;
 	  margin-bottom: 20px;
 	}
 </style>

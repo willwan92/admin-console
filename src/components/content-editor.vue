@@ -8,11 +8,13 @@
 	export default {
 		name: 'content-editor',
 		data () {
-
+			return {
+				
+			}
 		},
 		computed: {
 			getMenuId () {
-				return this.$state.menuId;
+				return this.$store.state.menuId;
 			}
 		}
 	}

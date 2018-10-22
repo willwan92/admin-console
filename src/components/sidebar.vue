@@ -25,6 +25,7 @@
 		        <div v-if="item.list.length" class="nav">
 		            <router-link 
 		            	v-for="subItem in item.list"
+		            	:key="subItem.fid"
 		            	:to="'/admin/' + subItem.fid"
 		            	class="nav-link"
 		            	:data-type="item.isType"
