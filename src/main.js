@@ -27,8 +27,8 @@ var menuData = {
 
 var store = new Vuex.Store({
 	state: {
-		// baseUrl: 'http://10.60.5.74:9090',
-		baseUrl: 'http://192.168.0.155:9090',
+		baseUrl: 'http://10.60.5.74:9090',
+		// baseUrl: 'http://192.168.0.155:9090',
 		// 打开的一级菜单索引
 		openIndex: 0,
 		menuId: '1010',
