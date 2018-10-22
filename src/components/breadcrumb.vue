@@ -1,24 +1,24 @@
 <template>
-	<span class="location-item"> {{ getLocation }}</span>
+	<div class="breadcrumb-wrapper">
+		<span v-for="(breadcrumb, index) in breadcrumbs" class="location-item">
+		<span v-if="index"> >> </span>
+	 	{{ breadcrumb }}
+	 </span>
+	</div>
 </template>
 
 <style lang="less" scoped="">
-	
+	.breadcrumb-wrapper{
+		display: inline-block;
+	}
 </style>
 
 <script>
 	export default {
-		computed: {
-			getLocation () {
-				const locations = {
-					"1010" : "新闻资讯",
-					"1050" : "本地资讯",
-					"201"  : "通知公告",
-					"202"  : "政策法规",
-					"30"   : "先进典型"
-				};
-
-				return locations[this.$store.state.menuId];
+		props: {
+			breadcrumbs: {
+				type: Array,
+				required: true
 			}
 		}
 	}

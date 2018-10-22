@@ -42,7 +42,7 @@
 
 <script>
 
-	import axios from '../../bower_components/axios/dist/axios.min.js';
+	import axios from 'axios';
 
 	export default {
 		name: "Login",

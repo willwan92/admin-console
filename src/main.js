@@ -2,7 +2,7 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import App from './App'
-import Content from './components/Content.vue'
+import ContentList from './components/content-list.vue'
 import VueRouter from 'vue-router'
 import Vuex from 'vuex'
 
@@ -17,12 +17,22 @@ Vue.config.productionTip = false
 Vue.use(VueRouter)
 Vue.use(Vuex)
 
+var menuData = {
+					"1010" : "新闻资讯",
+					"1050" : "本地资讯",
+					"201"  : "通知公告",
+					"202"  : "政策法规",
+					"30"   : "先进典型"
+				};
+
 var store = new Vuex.Store({
 	state: {
 		// baseUrl: 'http://10.60.5.74:9090',
 		baseUrl: 'http://192.168.0.155:9090',
+		// 打开的一级菜单索引
 		openIndex: 0,
-		menuId: '1010'
+		menuId: '1010',
+		breadcrumb: [menuData['1010']]
 	},
 	mutations: {
 		changeMenuId (state, playload) {
@@ -30,6 +40,16 @@ var store = new Vuex.Store({
 		},
 		changeOpenIndex (state, playload) {
 			state.openIndex = playload.openIndex;
+		},
+		changeBreadcrumb(state, playload) {
+			// 注意：在修改数组时，如果使用某些方法，vue可能检测不到数据的更新。
+			state.breadcrumb.splice(0, 1, menuData[playload.breadcrumb]);
+		},
+		addBreadcrumb(state, playload) {
+			state.breadcrumb.push(playload.breadcrumb);
+		},
+		removeBreadcrumb(state, playload) {
+			state.breadcrumb.pop();
 		}
 	}
 })
@@ -38,8 +58,8 @@ const router = new VueRouter({
 	routes: [
 		{
 			path: '/admin/:menuId',
-			component: Content,
-		},
+			component: ContentList,
+		}
 	]
 })
 
@@ -49,7 +69,7 @@ new Vue({
   	router,
   	components: { 
   		App,
-  		Content,
+  		ContentList,
 	},
   	template: '<App/>'
 })
