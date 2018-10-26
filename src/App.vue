@@ -5,6 +5,7 @@
       @toggleLoginState="toggleLoginState"
     />
     <div v-if="isLogin === 'true'" class="clearfix" id="main">
+      <!-- 向子组件传递响应式属性menuData，须在初始化实例前声明根级响应式属性menuData -->
       <Sidebar :menuData="menuData"/>
       <div id="main-content">
         <div class="location">当前位置：
@@ -46,6 +47,13 @@ export default {
       breadcrumbs: this.getBreadcrumb()
     }
   },
+  beforeMount() {
+    if (this.isLogin) {
+      this.$router.push('/admin/1010')
+    } else {
+      this.$router.push('/login')
+    }
+  },
   created () {
     let self = this;
     axios.get(this.$store.state.baseUrl + '/admin/getMenu')
@@ -54,7 +62,7 @@ export default {
           self.menuData = res.data.body;    
         }
         else {
-          alert(res.data.message);
+          self.$message.error(res.data.message);
         }
       })
       .catch(function (error) {
@@ -68,8 +76,17 @@ export default {
     getLoginState() {
       return sessionStorage.getItem('isLogin');
     },
-    getBreadcrumb () {
+    getBreadcrumb() {
       return this.$store.state.breadcrumb;
+    }
+  },
+  watch: {
+    'isLogin' () {
+      if (!this.isLogin) {
+        this.$router.push('/login')
+      } else {
+        this.$router.push('/admin/1010')
+      }
     }
   }
 }

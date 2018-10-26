@@ -20,6 +20,9 @@
 			tabList: {
 				type: Array,
 				required: true
+			},
+			tabIndex: {
+				type: Number
 			}
 		},
 		components: {
@@ -27,7 +30,7 @@
 		},
 		data () {
 			return {
-				activeIndex: 0
+				activeIndex: this.tabIndex
 			}
 		},
 		methods: {
@@ -39,8 +42,8 @@
 			},
 		},
 		watch: {
-			'tabList' () {
-				this.activeIndex = 0;
+			'tabIndex' () {
+				this.activeIndex = this.tabIndex;
 			}
 		}
 	}

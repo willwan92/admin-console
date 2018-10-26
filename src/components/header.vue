@@ -1,6 +1,6 @@
 <template>
 	<header id="header" class="">
-		<a href="#" class="logo"><img src="../assets/imgs/logo.png" alt="logo"></a>
+		<a href="#" class="logo"><!-- <img src="../assets/imgs/logo.png" alt="logo"> --></a>
 		<h1 class="title">新闻发布后台</h1>
 		<div class="login-state">
 			<span class="user">你好，<span class="user-name">管理员</span></span>

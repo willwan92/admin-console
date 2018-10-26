@@ -1,19 +1,10 @@
 <template>
 	<div class="pull-left" id="sidebar">
 		<ul id="sidebar-menu">
-		    <!-- <li class="menu-item open">
-		        <h2 class="menu-title 10" data-id="10" data-type="0">新闻管理</h2>
-		        <ul class="nav" style="display: block;">
-		            <li class="nav-link 1010" data-id="1010" data-type="0">新闻资讯</li>
-		            <li class="nav-link 1050" data-id="1050" data-type="0">本地资讯</li>
-		        </ul>
-		    </li> -->
 		    <li 
-		    	 v-for="(item, index) in menuData" 
+		    	 v-for="(item, index) in menuList" 
 		    	:class="['menu-item', index === getOpenIndex ? 'open' : '']" 
-		    	:key="item.id"
-	    	>	
-
+		    	:key="item.id">	
 		        <h2 
 		        	class="menu-title" 
 		        	:data-id="item.fid" 
@@ -28,8 +19,7 @@
 		            	:key="subItem.fid"
 		            	:to="'/admin/' + subItem.fid"
 		            	class="nav-link"
-		            	:data-type="item.isType"
-	            	>
+		            	:data-type="item.isType">
 						{{ subItem.typeName }}
 	            	</router-link>
 		        </div>
@@ -62,6 +52,9 @@
 		computed: {
 			getOpenIndex() {
 				return this.$store.state.openIndex;
+			},
+			menuList() {
+				return this.menuData;
 			}
 		},
 		methods: {
