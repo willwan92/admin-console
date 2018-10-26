@@ -68,7 +68,7 @@
 			},
 			changeMenu(to) {
 				let menuId = to.params.menuId;
-				let tabIndex = to.query.tabIndex;
+				let tabIndex = parseInt(to.query.tabIndex);
 				// 打开的一级菜单索引
 				let openIndex = parseInt(menuId.charAt(0)) - 1;
 				let $store = this.$store;
