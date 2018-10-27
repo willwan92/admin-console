@@ -15,19 +15,22 @@
 					<span v-else>发布时间：{{ row.date }}</span>
 				</td>
 				<td>
-					<span 
+					<el-button 
 						v-if="row.status === '0'"
-						class="edit"
 						@click="edit(row.id)"
-					>编辑</span>
+						type="text">编辑
+					</el-button>
 
-					<span 
-						v-else-if="row.status === '1'"
-						class="set" 
-						@click="set"
-					>设置</span>
+					<el-button 
+						v-else-if="openIndex ===0 && row.status === '1'"
+						type="text"
+						@click="set(row.id)">设置
+					</el-button>
 
-					<span class="del" @click="del([row.id], [index])">删除</span>
+					<el-button 
+						type="text"
+						@click="del([row.id], [index])">删除
+					</el-button>
 				</td>
 			</tr>
 		</tbody>
@@ -57,8 +60,8 @@
 				})
 				this.$router.push({path: '/admin/' + this.menuId + '/edit/' + id});
 			},
-			set () {
-
+			set (id) {
+				this.$emit('setDialog', id)
 			},
 			/**
 			 * [del 删除新闻]
@@ -106,6 +109,9 @@
  			},
  			newsList() {
  				return this.newDTOList;
+ 			},
+ 			openIndex() {
+ 				return this.$store.state.openIndex;
  			}
  		}
 	}
