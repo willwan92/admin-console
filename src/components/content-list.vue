@@ -14,6 +14,7 @@
 			导致子组件验证属性时报错，用v-if判断存在newsListObj.newDTOList时再渲染子组件 -->
 		<CustomTable 
 			v-if="newsListObj.newDTOList"
+			@setDialog="setDialog"
 			:thead="thead"
 			:newDTOList="newsListObj.newDTOList">		
 		</CustomTable>
@@ -25,6 +26,42 @@
 			:current-page="currentPage"
 			:page-count="newsListObj.pageSumCount">
 		</el-pagination>
+
+		<!-- 新闻设置对话框 -->
+		<el-dialog v-if="tabList" title="新闻设置" :visible.sync="setDialogVisible" labelWidth="150px">
+			<el-form :model="setForm">
+				<el-form-item label="新闻类型">
+					<el-radio-group v-model="setForm.fid">
+						<el-radio-button
+							v-for="item in tabList"
+							:key="item.fid"
+							:label="item.fid">
+							{{item.typeName}}
+						</el-radio-button>
+					</el-radio-group>
+					<p class="text-muted">选择后，新闻会显示在相应的类型中</p>
+				</el-form-item>
+				<el-form-item label="图片展示">
+					<el-radio-group v-model="setForm.showPic">
+						<el-radio-button label="0">不显示</el-radio-button>
+						<el-radio-button label="1">轮播图</el-radio-button>
+						<el-radio-button label="2">活动图片</el-radio-button>
+						<el-radio-button label="3">横幅</el-radio-button>
+					</el-radio-group>
+					<p class="text-muted">设置图片在主页的展示位置，分别是轮播图、活动图片和横幅模块</p>
+				</el-form-item>
+				<el-form-item v-show="setForm.showPic !== '0'" label="图片上传">
+					<el-upload :action="baseUrl">
+						<el-button size="small" type="primary">点击上传</el-button>
+						<div slot="tip">上传提示</div>
+					</el-upload>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="setDialogVisible = false">取消</el-button>
+				<el-button type="primary">确定</el-button>
+			</div>
+		</el-dialog>
 	</div>
 </template>
 
@@ -44,6 +81,13 @@
 		},
 		data () {
 			return {
+				setDialogVisible: false,
+				setForm: {
+					fid: '',
+					showPic: '',
+					picUrl: ''
+				},
+				uploadPicTip: '点击上传图片  建议尺寸340*240，图片不超过5M',
 				tabList: null,
 				thead: {
 					newsTitle: '标题', 
@@ -58,13 +102,26 @@
 		computed: {
 			getMenuId () {
 				return this.$route.params.menuId;
+			},
+			baseUrl() {
+				return this.$store.state.baseUrl;
+			},
+			openIndex() {
+				return this.$store.state.openIndex;
 			}
 		},
 		methods: {
+			setDialog(id) {
+				this.setDialogVisible = true;
+			},
 			changeTab(tabIndex) {
 				this.tabIndex = tabIndex;
 				this.currentPage = 1;
+				this.changeFid(tabIndex);
 				this.getNewsListObj(this.tabIndex, this.currentPage);
+			},
+			changeFid(index) {
+				this.setForm.fid = this.tabList[index].fid;
 			},
 			changeMenu(to) {
 				let menuId = to.params.menuId;
@@ -105,6 +162,7 @@
 				if (openIndex === 0) {
 					this.getTypeByPid()
 						.then(() => {
+							this.changeFid(this.tabIndex);
 							this.getNewsListObj(this.tabIndex, this.currentPage);
 						});
 				} else {
@@ -120,6 +178,7 @@
 					.get(_state.baseUrl + '/admin/getTypeByPid?pid=' + _state.menuId)
 					.then((res) => {
 						self.tabList = res.data.body.typeDTOList;
+						console.log(self.tabList);
 					})
 					.catch(function (err) {
 						console.log(err);
@@ -232,6 +291,27 @@
 
 			// next函数必须调用
 			next();
+		},
+		watch: {
+			'setForm.showPic' () {
+				let val = this.newsForm.showPic;
+				if (val === '0') {
+					// this.rules.picUrl[0].required = false;
+				} else {
+					// this.rules.picUrl[0].required = true;
+					switch(val) {
+						case '1':
+							this.picPlaceholder = '点击上传图片  建议尺寸340*240，图片不超过5M';
+							break;
+						case '2':
+							this.picPlaceholder = '点击上传图片  建议尺寸180*128，图片不超过5M';
+							break;
+						case '3':
+							this.picPlaceholder = '点击上传图片  建议尺寸1000*100，图片不超过5M';
+							break;
+					}
+				}
+			}
 		}
 	}
 </script>
