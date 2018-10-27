@@ -3,7 +3,10 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Vuex from 'vuex'
-import { Radio, RadioGroup, RadioButton, Pagination, Row, Col, Form, FormItem, Input, Button, Message, MessageBox } from 'element-ui'
+import { 
+	Radio, RadioGroup, RadioButton, Pagination, Row, Col, Form, FormItem,
+	Input, Button, Message, MessageBox, Dialog, Upload
+} from 'element-ui'
 import App from './App'
 import ContentList from './components/content-list.vue'
 import NewsEditor from './components/news-editor.vue'
@@ -31,6 +34,8 @@ Vue.use(Form)
 Vue.use(FormItem)
 Vue.use(Input)
 Vue.use(Button)
+Vue.use(Dialog)
+Vue.use(Upload)
 
 // message, msgbox等组件是在Vue原型上添加方法，不必用Vue.use()注册插件。
 Vue.prototype.$message = Message;
