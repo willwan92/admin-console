@@ -21,7 +21,7 @@
 				<el-input v-model="newsForm.newsFrom"></el-input>
 			</el-form-item>
 			<el-form-item prop="showPic" label="图片展示">
-				<el-radio-group v-model="newsForm.showPic" @change="showPicChange">
+				<el-radio-group v-model="newsForm.showPic">
 					<el-radio-button label="0">不显示</el-radio-button>
 					<el-radio-button label="1">轮播图</el-radio-button>
 					<el-radio-button label="2">活动图片</el-radio-button>
@@ -29,9 +29,10 @@
 				</el-radio-group>
 				<span class="text-muted">设置图片在主页的展示位置，分别是轮播图、活动图片和横幅模块</span>
 			</el-form-item>
-			<el-form-item v-show="picUrlShow" prop="picUrl" label="图片上传">
+			<el-form-item v-show="newsForm.showPic !== '0'" prop="picUrl" label="图片上传">
 				<el-input 
 					:readonly="true"
+					v-model="newsForm.picUrl"
 					@click.native="handlePicInput"
 					:placeholder="picPlaceholder">
 				</el-input>
@@ -122,24 +123,26 @@
 			getNewsById() {
 				let self = this;
 
-				axios
-					.get(this.baseUrl + '/admin/getNewsById?newsId=' + this.id)
-					.then(res => {
-						let data = res.data,
-							body = data.body,
-							newsForm = self.newsForm;
-						if (data.status !== 1) {
-							self.$message.error(data.message);
-						} else {
-							newsForm.fid = body.fid;
-							newsForm.newsTitle = body.newsTitle;
-							newsForm.newsContent = body.newsContent;
-							newsForm.showPic = body.showPic;
-							newsForm.picUrl = body.picUrl;
-							newsForm.newsFrom = body.newsFrom;
-						}
-					})
-					.catch(err => console.log(err));
+				let p = axios
+				.get(this.baseUrl + '/admin/getNewsById?newsId=' + this.id)
+				.then(res => {
+					let data = res.data,
+						body = data.body,
+						newsForm = self.newsForm;
+					if (data.status !== 1) {
+						self.$message.error(data.message);
+					} else {
+						newsForm.fid = body.fid;
+						newsForm.newsTitle = body.newsTitle;
+						newsForm.newsContent = body.newsContent;
+						newsForm.showPic = body.showPic;
+						newsForm.picUrl = body.picUrl;
+						newsForm.newsFrom = body.newsFrom;
+					}
+				})
+				.catch(err => console.log(err));
+
+				return p;
 			},
 			publishNews() {
 				let self = this;
@@ -249,13 +252,22 @@
 
 				// 返回promise实例供依赖此异步操作结果的程序使用
 				return p;
+			}
+		},
+		computed: {
+			baseUrl() {
+				return this.$store.state.baseUrl;
 			},
-			showPicChange(val) {
+			menuId() {
+				return this.$store.state.menuId;
+			}
+		},
+		watch: {
+			'newsForm.showPic' () {
+				let val = this.newsForm.showPic;
 				if (val === '0') {
-					this.picUrlShow = false;
 					this.rules.picUrl[0].required = false;
 				} else {
-					this.picUrlShow = true;
 					this.rules.picUrl[0].required = true;
 					switch(val) {
 						case '1':
@@ -269,14 +281,6 @@
 							break;
 					}
 				}
-			}
-		},
-		computed: {
-			baseUrl() {
-				return this.$store.state.baseUrl;
-			},
-			menuId() {
-				return this.$store.state.menuId;
 			}
 		}
 	}
