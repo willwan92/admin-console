@@ -4,8 +4,8 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Vuex from 'vuex'
 import { 
-	Radio, RadioGroup, RadioButton, Pagination, Row, Col, Form, FormItem,
-	Input, Button, Message, MessageBox, Dialog, Upload
+	Radio, RadioGroup, RadioButton, Pagination, Form, FormItem,
+	Input, Button, Message, MessageBox, Dialog, Upload, Loading
 } from 'element-ui'
 import App from './App'
 import ContentList from './components/content-list.vue'
@@ -16,6 +16,8 @@ import ModelEditor from './components/model-editor.vue'
 import './assets/styles/reset.css'
 import './assets/styles/bootstrap.min.css'
 import './assets/styles/global.css'
+
+import axios from 'axios'
 
 Vue.config.productionTip = false
 
@@ -28,8 +30,6 @@ Vue.use(Radio)
 Vue.use(RadioGroup)
 Vue.use(RadioButton)
 Vue.use(Pagination)
-Vue.use(Row)
-Vue.use(Col)
 Vue.use(Form)
 Vue.use(FormItem)
 Vue.use(Input)
@@ -37,12 +37,14 @@ Vue.use(Button)
 Vue.use(Dialog)
 Vue.use(Upload)
 
-// message, msgbox等组件是在Vue原型上添加方法，不必用Vue.use()注册插件。
+Vue.prototype.$axios = axios;
+// message, msgbox等组件是在Vue原型上添加方法，不能用Vue.use()注册插件。
 Vue.prototype.$message = Message;
 Vue.prototype.$msgbox = MessageBox;
 Vue.prototype.$alert = MessageBox.alert;
 Vue.prototype.$confirm = MessageBox.confirm;
 Vue.prototype.$prompt = MessageBox.prompt;
+Vue.prototype.$loading = Loading.service;
 
 var menuData = {
 					"1010" : "新闻资讯",
@@ -52,10 +54,15 @@ var menuData = {
 					"30"   : "先进典型"
 				};
 
+// 打包生产环境代码时，如果需要配置静态资源的公共路径，
+// 可从config目录的index.js的build下的assetsPublicPath属性配置，默认是根目录'/'
+
 var store = new Vuex.Store({
 	state: {
-		baseUrl: 'http://10.60.5.74:9090',
-		// baseUrl: 'http://192.168.0.155:9090',
+		// 加/api是为了区分后台数据接口路径和其他路径（例如：/admin），
+		// 便于在nginx.conf配置反向代理，解决生产环境的跨域问题
+		baseUrl: '/api',
+		path: '/menu/1010',
 		// 打开的一级菜单索引
 		openIndex: 0,
 		menuId: '1010',
@@ -63,6 +70,9 @@ var store = new Vuex.Store({
 		breadcrumb: [menuData['1010']]
 	},
 	mutations: {
+		changePath(state, playload) {
+			state.path = playload.path;
+		},
 		changeFid(state, playload) {
 			state.fid = playload.fid;
 		},
@@ -85,30 +95,31 @@ var store = new Vuex.Store({
 	}
 })
 
+// 注意：不同路由路径不能重复，例如:/login和/:menuId就是重复的
 const router = new VueRouter({
 	routes: [
 		{
-			path: '/admin/:menuId',
+			path: '/menu/:menuId',
 			component: ContentList,
 		},
 		{
-			path: '/admin/1010/edit/:id?',
+			path: '/menu/1010/edit/:id?',
 			component: NewsEditor,
 		},
 		{
-			path: '/admin/1050/edit/:id?',
+			path: '/menu/1050/edit/:id?',
 			component: NewsEditor,
 		},
 		{
-			path: '/admin/201/edit/:id?',
+			path: '/menu/201/edit/:id?',
 			component: NoticeEditor,
 		},
 		{
-			path: '/admin/202/edit/:id?',
+			path: '/menu/202/edit/:id?',
 			component: NoticeEditor,
 		},
 		{
-			path: '/admin/30/edit/:id?',
+			path: '/menu/30/edit/:id?',
 			component: ModelEditor,
 		}
 	]
@@ -126,8 +137,5 @@ new Vue({
   		ModelEditor
 	},
   	template: '<App/>',
-  	beforeCreate() {
-  		this.$router.push('/');
-  	}
 })
 

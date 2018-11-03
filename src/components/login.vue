@@ -42,8 +42,6 @@
 
 <script>
 
-	import axios from 'axios';
-
 	export default {
 		name: "Login",
 		data() {
@@ -56,7 +54,7 @@
 			loginSubmit(event) {
 
 	           	var self = this;
-	            axios({
+	            self.$axios({
 	                method: 'post',
 	                data: {
 	                	userName: self.userName,

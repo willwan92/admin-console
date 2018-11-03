@@ -28,8 +28,8 @@
 		</el-pagination>
 
 		<!-- 新闻设置对话框 -->
-		<el-dialog v-if="tabList" title="新闻设置" :visible.sync="setDialogVisible" labelWidth="150px">
-			<el-form :model="setForm">
+		<el-dialog v-if="tabList" title="新闻设置" :visible.sync="setDialogVisible">
+			<el-form class="set-form" :model="setForm" :rules="setRules" ref="setForm" label-width="80px">
 				<el-form-item label="新闻类型">
 					<el-radio-group v-model="setForm.fid">
 						<el-radio-button
@@ -50,24 +50,25 @@
 					</el-radio-group>
 					<p class="text-muted">设置图片在主页的展示位置，分别是轮播图、活动图片和横幅模块</p>
 				</el-form-item>
-				<el-form-item v-show="setForm.showPic !== '0'" label="图片上传">
-					<el-upload :action="baseUrl">
-						<el-button size="small" type="primary">点击上传</el-button>
-						<div slot="tip">上传提示</div>
-					</el-upload>
+				<el-form-item prop="picUrl" v-show="setForm.showPic !== '0'" label="图片上传">
+					<el-input 
+						:readonly="true"
+						:placeholder="picPlaceholder"
+						v-model="setForm.picUrl"
+						@click.native="handlePicInput">
+					</el-input>
+					<input ref="picFile" type="file" @change="uploadPic" class="hidden">
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click="setDialogVisible = false">取消</el-button>
-				<el-button type="primary">确定</el-button>
+				<el-button type="primary" @click="submitSetForm">确定</el-button>
 			</div>
 		</el-dialog>
 	</div>
 </template>
 
 <script>
-	import axios from 'axios'
-
 	import Button from './button.vue'
 	import Tabs from './tabs.vue'
 	import CustomTable from './custom-table.vue'
@@ -83,11 +84,19 @@
 			return {
 				setDialogVisible: false,
 				setForm: {
+					id: '',
 					fid: '',
 					showPic: '',
 					picUrl: ''
 				},
-				uploadPicTip: '点击上传图片  建议尺寸340*240，图片不超过5M',
+				setRules: {
+					picUrl: [{
+						required: true,
+						message: '请选择图片',
+						trigger: 'blur'
+					}]
+				},
+				picPlaceholder: '点击上传图片  建议尺寸340*240，图片不超过5M',
 				tabList: null,
 				thead: {
 					newsTitle: '标题', 
@@ -113,6 +122,86 @@
 		methods: {
 			setDialog(id) {
 				this.setDialogVisible = true;
+
+				this.getNewsById(id);
+			},
+			submitSetForm() {
+				let self = this;
+
+				self.$refs.setForm.validate(valid => {
+					if (!valid) {
+						return false;
+					} else {
+						self.setDialogVisible = false;
+
+						self.$axios
+						.post(this.baseUrl + '/admin/publishedUpdateNews', self.setForm)
+						.then(res => {
+							let data = res.data;
+							if (data.status !== 1) {
+								self.$message.error(data.message);
+							} else {
+								self.$message.success('保存成功');
+							}
+						})
+						.catch(err => {
+							console.log(err);
+						})
+						.then(() => {
+							self.getNewsListObj(self.tabIndex, self.currentPage);
+						});
+					}
+				})
+			},
+			getNewsById(id) {
+				let self = this;
+
+				self.$axios
+				.get(this.baseUrl + '/admin/getNewsById/', {
+					params: {
+						newsId: id,
+						timestamp: new Date().getTime()
+					}
+				})
+				.then(res => {
+					let data = res.data,
+						body = data.body,
+						setForm = self.setForm;
+					if (data.status !== 1) {
+						self.$message.error(data.message);
+					} else {
+						setForm.id = body.id;
+						setForm.showPic = body.showPic;
+						setForm.picUrl = body.picUrl;
+					}
+				})
+				.catch(err => console.log(err));
+			},
+			handlePicInput() {
+				this.$refs.picFile.click();
+			},
+			uploadPic() {
+				let self = this;
+				let picFile = this.$refs.picFile;
+				let formData = new FormData();
+
+				formData.append('multipartFile', picFile.files[0]);
+
+				self.$axios
+				.post(this.baseUrl + '/img/upload', formData)
+				.then((res) => {
+					let data = res.data;
+					if (data.status === 1) {
+						self.newsForm.picUrl = data.body;
+					    self.$message.success("图片上传成功");
+					}
+					else {
+					    self.$message.error(data.message);
+					}
+				})
+				.catch((err) => {
+					console.log(err);
+				})
 			},
 			changeTab(tabIndex) {
 				this.tabIndex = tabIndex;
@@ -174,11 +263,10 @@
 				let self = this;
 				let _state = self.$store.state;
 
-				let p = axios
+				let p = self.$axios
 					.get(_state.baseUrl + '/admin/getTypeByPid?pid=' + _state.menuId)
 					.then((res) => {
 						self.tabList = res.data.body.typeDTOList;
-						console.log(self.tabList);
 					})
 					.catch(function (err) {
 						console.log(err);
@@ -221,8 +309,10 @@
 					params.menuId = _state.menuId
 				}
 				
+				params.timestamp = new Date().getTime();
 
-				axios.get(baseUrl + pathUrl, {
+				self.$axios
+				.get(baseUrl + pathUrl, {
 					params: params
 				})
 				.then(function(res) {
@@ -248,7 +338,7 @@
 					type: 'addBreadcrumb',
 					breadcrumb: '新建'
 				})
-				this.$router.push({path: '/admin/' + menuId + '/edit'});
+				this.$router.push({path: '/menu/' + menuId + '/edit'});
 			},
 			dataAdapter(data) {
 				data.typicalDTOList.forEach((item) => {
@@ -262,10 +352,11 @@
 			}
 		},
 		beforeRouteEnter(to, from, next) {
-
 			// beforeRouteEnter 守卫不能访问 this，因为当守卫执行前，组件实例还没被创建
-			// 可以通过传一个回调函数给next，并且把组件实例作为回调方法的参数，在导航被确认的时候执行回调。
-			// 注意：next的回调函数只接受vm实例作为参数，不能随意加参数。另外，在回调函数内部可以访问路由to和from 
+			// 可以通过传一个回调函数给next，并且把组件实例作为回调方法的参数，
+			// 在导航被确认的时候执行回调。
+			// 注意：next的回调函数只接受vm实例作为参数，不能随意加参数。
+			// 另外，在回调函数内部可以访问路由to和from 
 			next(vm => {
 				let fromEdit = from.path.search('edit');
 				if (fromEdit !== -1) {
@@ -294,11 +385,11 @@
 		},
 		watch: {
 			'setForm.showPic' () {
-				let val = this.newsForm.showPic;
+				let val = this.setForm.showPic;
 				if (val === '0') {
-					// this.rules.picUrl[0].required = false;
+					this.setRules.picUrl[0].required = false;
 				} else {
-					// this.rules.picUrl[0].required = true;
+					this.setRules.picUrl[0].required = true;
 					switch(val) {
 						case '1':
 							this.picPlaceholder = '点击上传图片  建议尺寸340*240，图片不超过5M';
@@ -323,5 +414,9 @@
 
 	#news-list {
 	  margin-bottom: 20px;
+	}
+
+	.set-form {
+		padding-right: 40px;
 	}
 </style>

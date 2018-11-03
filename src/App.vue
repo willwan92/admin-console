@@ -18,23 +18,24 @@
       v-else
       @toggleLoginState="toggleLoginState"
     />
+    <Footer></Footer>
   </div>
 </template>
 
 <script>
 
 import Header from './components/header.vue'
+import Footer from './components/footer.vue'
 import Login from './components/login.vue'
 import Sidebar from './components/sidebar.vue'
 import ContentList from './components/content-list.vue'
 import Breadcrumb from './components/breadcrumb'
 
-import axios from 'axios'
-
 export default {
   name: 'App',
   components: {
     Header,
+    Footer,
     Login,
     Sidebar,
     ContentList,
@@ -44,19 +45,51 @@ export default {
     return {
       isLogin: this.getLoginState(),
       menuData: [],
-      breadcrumbs: this.getBreadcrumb()
     }
   },
   beforeMount() {
     if (this.isLogin) {
-      this.$router.push('/admin/1010')
+      this.getMenuData()
+      .then(() => {
+        this.$router.push(this.$store.state.path);  
+      })
     } else {
-      this.$router.push('/login')
+      
     }
   },
   created () {
-    let self = this;
-    axios.get(this.$store.state.baseUrl + '/admin/getMenu')
+    // 登录转态下，刷新页面是保存state数据到sessionStorage，
+    // 退出登录时删除相关sessionStorage中的数据
+    window.addEventListener('beforeunload', this.saveState)
+
+    if (!this.isLogin) {
+      this.$router.push('/login');
+    } else {
+      let state = sessionStorage.getItem('state');
+      // 刷新时
+      if (state) {
+        // Object.assign() 方法用于将所有可枚举属性的值从一个或多个源对象复制到目标对象。
+        this.$store.replaceState(Object.assign({}, this.$store.state, JSON.parse(state)));
+      } else {
+        // this.getMenuData()
+        // .then(() => {
+        //   this.$router.push(this.$store.state.path);  
+        // })
+      }
+    }
+  },
+  methods: {
+    toggleLoginState() {
+      this.isLogin = this.getLoginState();
+    },
+    getLoginState() {
+      return sessionStorage.getItem('isLogin');
+    },
+    getMenuData() {
+      let self = this;
+      
+      let p = self.$axios
+      .get(this.$store.state.baseUrl + '/admin/getMenu')
       .then(function (res) {
         if (res.data.status === 1) {
           self.menuData = res.data.body;    
@@ -68,24 +101,58 @@ export default {
       .catch(function (error) {
         console.log(error);
       })
+
+      return p;
+    },
+    saveState() {
+      // 在登录后才保存状态数据
+      if (this.isLogin) {
+        let fullPath = this.$router.history.current.fullPath;
+
+        this.$store.commit({
+          type: 'changePath',
+          path: fullPath
+        })
+
+        sessionStorage.setItem('state', JSON.stringify(this.$store.state));
+      }
+    }
   },
-  methods: {
-    toggleLoginState() {
-      this.isLogin = this.getLoginState();
-    },
-    getLoginState() {
-      return sessionStorage.getItem('isLogin');
-    },
-    getBreadcrumb() {
+  computed: {
+    breadcrumbs() {
       return this.$store.state.breadcrumb;
     }
   },
   watch: {
     'isLogin' () {
       if (!this.isLogin) {
+        // 注意：在退出登录时
+        
+        // 1. 要把sessionStorage和state数据清除，
+        // 否则在未关闭页面的情况下，
+        // 下次登录时显示的刷新页面时保存的转态
+        sessionStorage.removeItem('state');
+
+        // 2. $store里的state数据要重置
+        // 否则在未刷新页面的情况下，
+        // 下次登录时显示的退出前保存的转态
+        this.$store.replaceState({
+          baseUrl: 'http://10.60.5.74:9090',
+          // baseUrl: 'http://192.168.0.155:9090',
+          path: '/menu/1010',
+          // 打开的一级菜单索引
+          openIndex: 0,
+          menuId: '1010',
+          fid: '',
+          breadcrumb: ['新闻资讯']
+        });
+
         this.$router.push('/login')
       } else {
-        this.$router.push('/admin/1010')
+        this.getMenuData()
+        .then(() => {
+          this.$router.push(this.$store.state.path);  
+        })
       }
     }
   }
@@ -112,6 +179,4 @@ export default {
   }
 
 }
-
-
 </style>

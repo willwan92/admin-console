@@ -17,7 +17,7 @@
 		            <router-link 
 		            	v-for="subItem in item.list"
 		            	:key="subItem.fid"
-		            	:to="'/admin/' + subItem.fid"
+		            	:to="'/menu/' + subItem.fid"
 		            	class="nav-link"
 		            	:data-type="item.isType">
 						{{ subItem.typeName }}
@@ -25,7 +25,7 @@
 		        </div>
 		        <div v-else class="nav">
 	            	<router-link
-	            		:to="'/admin/' + item.fid"
+	            		:to="'/menu/' + item.fid"
 						class="nav-link"
 		            	:data-type="item.isType"
             		>{{ item.typeName }}</router-link>

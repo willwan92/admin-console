@@ -38,7 +38,6 @@
 </template>
 
 <script type="text/javascript">
-	import axios from 'axios'
 
 	export default {
 		name: 'custom-table',
@@ -58,7 +57,7 @@
 					type: 'addBreadcrumb',
 					breadcrumb: '编辑'
 				})
-				this.$router.push({path: '/admin/' + this.menuId + '/edit/' + id});
+				this.$router.push({path: '/menu/' + this.menuId + '/edit/' + id});
 			},
 			set (id) {
 				this.$emit('setDialog', id)
@@ -70,15 +69,21 @@
 			 * @return {[type]}        	  [description]
 			 */
 			del (idArr, indexArr) {
-				let self = this;
-				self.$confirm('该新闻将被立即删除，删除后您不能撤销此操作！', '提示', {
+				let pathUrl,
+					self = this;
+				if (self.openIndex === 2) {
+					pathUrl = '/admin/deleteByTypicalId';
+				} else {
+					pathUrl = '/admin/deleteByNewsId';
+				}
+				self.$confirm('该条数据将被立即删除，删除后您不能撤销此操作！', '提示', {
 					confirmButtonText: '确认删除',
 					cancelButtonText: '取消',
 					type: 'warning'
 				})
 				.then(() => {
-					axios
-					.post(this.baseUrl + '/admin/deleteByNewsId', {id: idArr})
+					self.$axios
+					.post(this.baseUrl + pathUrl, {id: idArr})
 					.then(res => {
 						let data = res.data;
 						if (data.status !== 1) {
@@ -116,24 +121,3 @@
  		}
 	}
 </script>
-
-<style lang="less" scoped="">
-	.edit,
-    .set,
-    .del {
-      cursor: pointer;
-    }
-
-    .edit:hover {
-      font-weight: bold;
-    }
-
-    .set:hover {
-      font-weight: bold;
-    }
-
-    .del:hover {
-      font-weight: bold;
-      color: red;
-    }
-</style>

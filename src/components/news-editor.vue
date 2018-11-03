@@ -46,8 +46,8 @@
 				placeholder="（必填）可输入文字和图片，图片拖拽到目标位置即可..."></el-input>
 			</el-form-item>
 			<el-form-item>
-				<el-button @click.native="saveNews">保存</el-button>
-				<el-button @click.native="publishNews">发布</el-button>
+				<el-button @click="saveNews">保存</el-button>
+				<el-button @click="publishNews">发布</el-button>
 			</el-form-item>
 		</el-form>
 
@@ -55,10 +55,14 @@
 </template>
 
 <script type="text/javascript">
-	import axios from 'axios'
-
+	
 	export default {
 		name: 'content-editor',
+		props: {
+			newsData: {
+				type: Object
+			}
+		},
 		data () {
 			return {
 				id: '',
@@ -107,7 +111,7 @@
 				// 编辑时
 				if (id) {
 					vm.id = id;
-					vm.getNewsById();
+					vm.getNewsById(id);
 				}
 			});
 		},
@@ -120,11 +124,16 @@
 					}
 				}
 			},
-			getNewsById() {
+			getNewsById(id) {
 				let self = this;
 
-				let p = axios
-				.get(this.baseUrl + '/admin/getNewsById?newsId=' + this.id)
+				self.$axios
+				.get(this.baseUrl + '/admin/getNewsById', {
+					params: {
+						newsId: id,
+						timestamp: new Date().getTime()
+					}
+				})
 				.then(res => {
 					let data = res.data,
 						body = data.body,
@@ -141,46 +150,43 @@
 					}
 				})
 				.catch(err => console.log(err));
-
-				return p;
 			},
 			publishNews() {
 				let self = this;
-				self.$confirm('你确认要发布此条新闻吗？', '提示', {
-					type: 'info',
-					confirmButtonText: '确认发布',
-					cancelButtonText: '取消'
-				})
-				.then(() => {
-					// validate 对表单进行校验的方法，参数为一个回调函数(在校验结束后被调用)
-					// 回调函数接受两个参数：是否校验成功和未通过校验的字段。
-					// 若不传入回调函数，则会返回一个 promise
-					self.$refs.newsForm.validate((valid) => {
-						if (valid) {
-							if (self.id) self.newsForm.id = self.id;
-							axios
-								.post(self.baseUrl + "/admin/publishNews", self.newsForm)
-								.then(res => {
-									let data = res.data;
-									if (data.status !== 1) {
-										self.$message.error(data.message);
-									} else {
-										self.$message.success('发布成功');
-									}
-								})
-								.then(() => {
-									self.$router.push('/admin/' + self.menuId + '?tabIndex=' + self.typeIndex());
-								})
-								.catch(err => {
-									console.log(err);
-								})
-						} else {
-							return false;
-						}
+
+				// validate 对表单进行校验的方法，参数为一个回调函数(在校验结束后被调用)
+				// 回调函数接受两个参数：是否校验成功和未通过校验的字段。
+				// 若不传入回调函数，则会返回一个 promise
+				self.$refs.newsForm.validate(valid => {
+					if (!valid) return false; 
+
+					self.$confirm('确认要发布吗?', '提示', {
+						type: 'info',
+						confirmButton: '确认发布',
+						cancelButton: '取消'
 					})
-				})
-				.catch(() => {
-					self.$message('已取消发布！')
+					.then(() => {
+						// 编辑时
+						if (self.id) self.newsForm.id = self.id;
+
+						self.$axios
+						.post(self.baseUrl + '/admin/publishNews', self.newsForm)
+						.then(res => {
+							let data = res.data;
+							if (data.status !== 1) {
+								self.$message.error(data.message);
+							} else {
+								self.$message.success('发布成功');
+							}
+						})
+						.then(() => {
+							self.$router.push('/menu/' + self.menuId + '?tabIndex=' + self.typeIndex());
+						})
+						.catch(err => console.log(err));
+					})
+					.catch(() => {
+						self.$message('已取消发布！')
+					})
 				})
 			},
 			saveNews() {
@@ -190,10 +196,20 @@
 				// 若不传入回调函数，则会返回一个 promise
 				self.$refs.newsForm.validate((valid) => {
 					if (valid) {
+						const loading = self.$loading({
+							lock: true,
+							text: 'Loading',
+							spinner: 'el-icon-loading',
+							background: 'rgba(f1, f1, f1, 0.7)'
+						})
+
 						let id = self.id ? '?id=' + self.id : '';
-						axios
+						
+						self.$axios
 							.post(self.baseUrl + "/admin/previewNews" + id, self.newsForm)
 							.then(res => {
+								loading.close();
+
 								let data = res.data;
 								if (data.status !== 1) {
 									self.$message.error(data.message);
@@ -202,7 +218,6 @@
 									self.$message.success('保存成功');
 								}
 							})
-							.then()
 							.catch(err => {
 								console.log(err);
 							})
@@ -222,7 +237,7 @@
 
 				formData.append('multipartFile', picFile.files[0]);
 
-				axios
+				self.$axios
 				.post(this.baseUrl + '/img/upload', formData)
 				.then((res) => {
 					let data = res.data;
@@ -241,14 +256,14 @@
 			getTypeByPid () {
 				let self = this;
 
-				let p = axios
-					.get(this.baseUrl + '/admin/getTypeByPid?pid=' + this.menuId)
-					.then((res) => {
-						self.newsType = res.data.body.typeDTOList;
-					})
-					.catch(function (err) {
-						console.log(err);
-					});
+				let p = self.$axios
+				.get(this.baseUrl + '/admin/getTypeByPid?pid=' + this.menuId)
+				.then((res) => {
+					self.newsType = res.data.body.typeDTOList;
+				})
+				.catch(function (err) {
+					console.log(err);
+				});
 
 				// 返回promise实例供依赖此异步操作结果的程序使用
 				return p;
